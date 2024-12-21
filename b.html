@@ -1,0 +1,524 @@
+<?php   include 'connection.php'; ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Menu Management - The Gallery Café</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* General styles */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+; background: url('admin1.jpg') no-repeat center center fixed;
+background-size: cover;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-color: rgba(0, 0, 0, 0.5); /* Added a fallback color for better visibility */
+            color: #d4a373; /* Changed text color */
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        header {
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+            color: #d4a373; /* Changed text color */
+            padding: 10px 0;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        header nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        header nav ul li {
+            display: inline;
+            margin: 0 10px;
+        }
+        header nav ul li a {
+            color: #d4a373; /* Changed text color */
+            text-decoration: none;
+            padding: 5px 10px;
+            transition: background-color 0.3s ease;
+        }
+        header nav ul li a:hover {
+            background-color: #555;
+        }
+        main {
+            padding: 20px;
+            max-width: 900px;
+            margin: 20px auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.2); /* Slightly transparent background for better readability */
+            backdrop-filter: blur(10px); /* Optional: add a blur effect */
+            animation: slideIn 1s ease-in-out;
+            position: relative; /* Ensure the order button is positioned correctly */
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        footer {
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+            color: #d4a373; /* Changed text color */
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        /* Category styles */
+        .category {
+            background-color: rgba(84, 45, 4, 0.227);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: fadeInUp 1s ease-in-out;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around; /* Center align items with space around */
+        }
+        @keyframes fadeInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .category h2 {
+            color: #d4a373; /* Changed text color */
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            animation: fadeInLeft 1s ease-in-out;
+            width: 100%;
+            text-align: center;
+        }
+        @keyframes fadeInLeft {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .item {
+            background-color: rgba(255, 255, 255, 0.8); /* Added background for better readability */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            margin: 10px;
+            display: flex;
+            align-items: center;
+            max-width: 300px; /* Limit width for better horizontal display */
+            width: 100%;
+        }
+        .item img {
+            width: 100px; /* Set a fixed width for images */
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            margin-right: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .item-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .item-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .item-price {
+            color: #d4a373;
+        }
+        .item img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Order Button Styles */
+        .order-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #d4a373; /* Button color */
+            color: #fff;
+            padding: 15px 30px; /* Increased padding for a more prominent button */
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            font-size: 16px; /* Larger font size for better readability */
+            text-align: center; /* Center-align the text */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .order-button i {
+            margin-right: 10px; /* Add some space between the icon and the text */
+        }
+        .order-button:hover {
+            background-color: #bfa06a; /* Slightly darker on hover */
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Promotion Button Styles */
+        .promotion-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px; /* Positioned to the left corner */
+            background-color: #d4a373; /* Button color */
+            color: #fff;
+            padding: 15px 30px; /* Increased padding for a more prominent button */
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            font-size: 16px; /* Larger font size for better readability */
+            text-align: center; /* Center-align the text */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .promotion-button i {
+            margin-right: 10px; /* Add some space between the icon and the text */
+        }
+        .promotion-button:hover {
+            background-color: #bfa06a; /* Slightly darker on hover */
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Admin Form Styles */
+        .admin-form {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .admin-form h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .admin-form label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .admin-form input, .admin-form select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+        .admin-form button {
+            background-color: #d4a373;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            font-size: 16px;
+        }
+        .admin-form button:hover {
+            background-color: #bfa06a;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent background for better readability */
+            backdrop-filter: blur(10px); /* Optional: add a blur effect */
+            animation: fadeInUp 1s ease-in-out;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #d4a373;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        tr:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        .image-preview {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .edit-button, .delete-button {
+            background-color: #d4a373;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            font-size: 14px;
+        }
+        .edit-button:hover, .delete-button:hover {
+            background-color: #bfa06a;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            animation: zoomIn 0.5s ease;
+        }
+        @keyframes zoomIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            margin: 0;
+        }
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .close:hover, .close:focus {
+            color: #d4a373;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>The Gallery Café - Admin Menu Management</h1>
+        <nav>
+            <ul>
+                <li><a href="admin-dashboard.php">admin</a></li>
+                
+               
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="admin-form">
+            <h2>Add Menu Item</h2>
+            <form id="menuForm">
+                <label for="category">Category</label>
+                <select id="category" required>
+                    <option value="">Select Category</option>
+                    <option value="Breakfast">Breakfast</option>
+                    <option value="Lunch">Beverage</option>
+                    <option value="Dinner">Dinner</option>
+                    <option value="Dessert">Dessert</option>
+                </select>
+                <label for="itemName">Item Name</label>
+                <input type="text" id="itemName" required>
+                <label for="itemPrice">Item Price</label>
+                <input type="text" id="itemPrice" required>
+                <label for="itemImage">Choose File</label>
+                <input type="file" id="itemImage" accept="image/*" required>
+                <button type="submit">Add Item</button>
+            </form>
+        </div>
+        <table id="menuTable">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Category</th>
+                    <th>Item Name</th>
+                    <th>Item Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Menu items will be added here dynamically -->
+            </tbody>
+        </table>
+    </main>
+ 
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Menu Item</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="editForm">
+                <label for="editCategory">Category</label>
+                <select id="editCategory" required>
+                    <option value="">Select Category</option>
+                    <option value="Breakfast">Breakfast</option>
+                    <option value="Lunch">Beverage </option>
+                    <option value="Dinner">Dinner</option>
+                    <option value="Dessert">Dessert</option>
+                </select>
+                <label for="editItemName">Item Name</label>
+                <input type="text" id="editItemName" required>
+                <label for="editItemPrice">Item Price</label>
+                <input type="text" id="editItemPrice" required>
+                <label for="editItemImage">Choose File</label>
+                <input type="file" id="editItemImage" accept="image/*">
+                <input type="hidden" id="editIndex">
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        
+        document.getElementById('menuForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const category = document.getElementById('category').value;
+            const itemName = document.getElementById('itemName').value;
+            const itemPrice = document.getElementById('itemPrice').value;
+            const itemImage = document.getElementById('itemImage').files[0];
+
+            if (category && itemName && itemPrice && itemImage) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageUrl = e.target.result;
+                    const table = document.getElementById('menuTable').getElementsByTagName('tbody')[0];
+                    const newRow = table.insertRow();
+
+                    const imageCell = newRow.insertCell(0);
+                    const imageElement = document.createElement('img');
+                    imageElement.src = imageUrl;
+                    imageElement.className = 'image-preview';
+                    imageCell.appendChild(imageElement);
+
+                    const categoryCell = newRow.insertCell(1);
+                    categoryCell.textContent = category;
+
+                    const itemNameCell = newRow.insertCell(2);
+                    itemNameCell.textContent = itemName;
+
+                    const itemPriceCell = newRow.insertCell(3);
+                    itemPriceCell.textContent = itemPrice;
+
+                    const actionsCell = newRow.insertCell(4);
+                    actionsCell.innerHTML = `
+                        <div class="action-buttons">
+                            <button class="edit-button" onclick="editItem(this)">Edit</button>
+                            <button class="delete-button" onclick="deleteItem(this)">Delete</button>
+                        </div>
+                    `;
+
+                    // Clear the form fields
+                    document.getElementById('menuForm').reset();
+                };
+                reader.readAsDataURL(itemImage);
+            }
+        });
+
+        function editItem(button) {
+            const row = button.parentElement.parentElement.parentElement;
+            const imageCell = row.cells[0].getElementsByTagName('img')[0];
+            const categoryCell = row.cells[1];
+            const itemNameCell = row.cells[2];
+            const itemPriceCell = row.cells[3];
+
+            document.getElementById('editCategory').value = categoryCell.textContent;
+            document.getElementById('editItemName').value = itemNameCell.textContent;
+            document.getElementById('editItemPrice').value = itemPriceCell.textContent;
+            document.getElementById('editIndex').value = row.rowIndex;
+
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function deleteItem(button) {
+            const row = button.parentElement.parentElement.parentElement;
+            document.getElementById('menuTable').deleteRow(row.rowIndex);
+        }
+
+        document.getElementById('editForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const index = document.getElementById('editIndex').value;
+            const table = document.getElementById('menuTable').getElementsByTagName('tbody')[0];
+            const row = table.rows[index - 1]; // Adjust for header row
+
+            const categoryCell = row.cells[1];
+            const itemNameCell = row.cells[2];
+            const itemPriceCell = row.cells[3];
+            const imageCell = row.cells[0].getElementsByTagName('img')[0];
+
+            const editCategory = document.getElementById('editCategory').value;
+            const editItemName = document.getElementById('editItemName').value;
+            const editItemPrice = document.getElementById('editItemPrice').value;
+            const editItemImage = document.getElementById('editItemImage').files[0];
+
+            categoryCell.textContent = editCategory;
+            itemNameCell.textContent = editItemName;
+            itemPriceCell.textContent = editItemPrice;
+
+            if (editItemImage) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageCell.src = e.target.result;
+                };
+                reader.readAsDataURL(editItemImage);
+            }
+
+            document.getElementById('editModal').style.display = 'none';
+        });
+
+        document.querySelector('.close').addEventListener('click', function() {
+            document.getElementById('editModal').style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target === document.getElementById('editModal')) {
+                document.getElementById('editModal').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
